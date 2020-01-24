@@ -11,8 +11,7 @@ from keras.models import model_from_json
 from keras.applications.imagenet_utils import preprocess_input
 
 from CNN_train_package.utils.gt_fns import give_gt_cart_reg
-from CNN_train_package.fast_image_rotation import rectify_image_given_phi_theta
-from CNN_train_package.utils.data_augment import moderate_combo
+from CNN_train_package.utils.data_augment import uniform_noise
 
 pathToMatrices = '/home/ben/projects/comparison_leveller/data/matrices221_10000'
 phiTheta = np.load(pathToMatrices + '/phiTheta_10000.npy')
@@ -142,7 +141,10 @@ def validate(path_to_network_model, path_to_weights, directory, flat):
         else:
             phi_gt, theta_gt, xMap, yMap = get_random_rotation(orig.shape[0])
             rotatedImage = cv2.remap(orig, xMap, yMap, cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT)
-        img = moderate_combo(rotatedImage)
+
+        # This must be here or the performance drops?
+        img = uniform_noise(rotatedImage)
+
         img = preprocess_input(img)
         phi, theta, z = forward_spherical(model, img)
         data.append((give_gt_cart_reg(phi_gt, theta_gt), z))
@@ -201,7 +203,7 @@ def test(path_to_network_model, path_to_weights):
             print(k)
         orig = cv2.imread(p)
         orig = cv2.resize(orig, (442, 221))
-        img = moderate_combo(orig)
+        img = uniform_noise(orig)
         img = preprocess_input(img)
         phi, theta, z = forward_spherical(model, img)
         z[1] *= -1.
@@ -216,21 +218,13 @@ if __name__ == '__main__':
     import os
     os.environ['CUDA_VISIBLE_DEVICES'] = "1"
 
-    # # disperse
-    # path_to_network_model = '/home/ben/projects/comparison_leveller/data/training/regression/paper_model_disperse/model.json'
-    # path_to_weights = '/home/ben/projects/comparison_leveller/data/training/regression/paper_model_disperse/Best/weights_150_5.08.h5'
-    # directory = '/home/ben/datasets/levelDataV2/levelled_images'
-    # validate(path_to_network_model, path_to_weights, directory, flat=True)
-    # validate(path_to_network_model, path_to_weights, directory, flat=False)
-    # test(path_to_network_model, path_to_weights)
+
 
     # sun360
     path_to_network_model = '/home/ben/projects/comparison_leveller/data/training/regression/paper_model_sun360/model.json'
     path_to_weights = '/home/ben/projects/comparison_leveller/data/training/regression/paper_model_sun360/Best/weights_360_4.43.h5'
     directory = '/home/ben/datasets/sun360/levelled_images'
-    # validate(path_to_network_model, path_to_weights, directory, flat=True)
     validate(path_to_network_model, path_to_weights, directory, flat=False)
-    directory = '/home/ben/datasets/sun360/test_images'
-    validate(path_to_network_model, path_to_weights, directory, flat=True)
+
 
 

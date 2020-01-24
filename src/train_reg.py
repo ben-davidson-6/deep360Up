@@ -23,6 +23,12 @@ TRAIN_DIRECTORY = None
 VALIDATION_DIRECTORY = None
 SAVE = PROJECT_FILE_PATH + "data/training/regression/"
 
+
+###################################################################
+# Get filepaths for training and validation
+###################################################################
+
+
 d = '/home/ben/datasets/sun360/levelled_images'
 levelled_paths = [os.path.join(d, x) for x in os.listdir(d)]
 seed = 1
@@ -39,6 +45,11 @@ else:
 
 train_filenames = levelled_paths[:n_train]
 valid_filenames = levelled_paths[n_train:]
+
+
+###################################################################
+# Define training model: network, loss and optimiser
+###################################################################
 
 
 loss_function = angle_spherical
@@ -67,6 +78,12 @@ model.summary()
 
 print('model compiled')
 
+
+###################################################################
+# define some folders for output
+###################################################################
+
+
 # Save
 output_folder = SAVE + model_name
 if not os.path.exists(output_folder):
@@ -88,6 +105,12 @@ model_json = model.to_json()
 with open(output_folder + "model.json", "w") as json_file:
     json_file.write(model_json)
 
+
+###################################################################
+# keras callbacks
+###################################################################
+
+
 tensorboard = TensorBoard(log_dir=output_log)
 
 checkpointer = CustomModelCheckpoint(
@@ -98,6 +121,12 @@ checkpointer = CustomModelCheckpoint(
     save_weights_only=True,
     period=5
 )
+
+
+###################################################################
+# data generators
+###################################################################
+
 
 training_generator = RotNetDataGenerator(
     gt_function=gt_type,
@@ -118,8 +147,12 @@ valid_generator = RotNetDataGenerator(
     shuffle=False,
     noise=False).generate(valid_filenames)
 
-# training loop
-early_stopping = EarlyStopping()
+
+###################################################################
+# train
+###################################################################
+
+
 model.fit_generator(
     generator=training_generator,
     steps_per_epoch=(len(train_filenames) // batch_size),

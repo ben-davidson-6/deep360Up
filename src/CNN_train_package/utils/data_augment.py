@@ -53,7 +53,6 @@ def moderate_combo(image):
     image = gaussian_noise(image)
     return image
 
-
 def heavy_combo(image):
     def add_noise_heavy(image):
 
