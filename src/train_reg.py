@@ -52,7 +52,7 @@ valid_filenames = levelled_paths[n_train:]
 ###################################################################
 
 
-loss_function = angle_spherical
+loss_function = tf.keras.losses.LogCosh()#angle_spherical
 constraint_function = sph_clipping
 num_output = 2
 gt_type = give_gt_sph_reg
@@ -130,7 +130,7 @@ checkpointer = CustomModelCheckpoint(
 
 training_generator = RotNetDataGenerator(
     gt_function=gt_type,
-    data_augmentation_fn=moderate_combo,
+    data_augmentation_fn=IEEE_VR_combo,
     input_shape=input_shape,
     batch_size=batch_size,
     one_hot=False,
@@ -139,7 +139,7 @@ training_generator = RotNetDataGenerator(
     noise=False).generate(train_filenames)
 valid_generator = RotNetDataGenerator(
     gt_function=gt_type,
-    data_augmentation_fn=moderate_combo,
+    data_augmentation_fn=IEEE_VR_combo,
     input_shape=input_shape,
     batch_size=batch_size,
     one_hot=False,

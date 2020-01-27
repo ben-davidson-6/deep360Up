@@ -372,7 +372,6 @@ def arc_error_cart(y_true, y_pred):
 def _logcosh(x):
     # logcosh = log(cosh(x))
     # cosh(x) = (e^x+e^(-x))/2
-
     return x + K.softplus(tf.constant(-2.,dtype=tf.float32) * x) - K.log(tf.constant(2.,dtype=tf.float32))
 
 

@@ -11,7 +11,7 @@ from keras.models import model_from_json
 from keras.applications.imagenet_utils import preprocess_input
 
 from CNN_train_package.utils.gt_fns import give_gt_cart_reg
-from CNN_train_package.utils.data_augment import uniform_noise
+# from CNN_train_package.utils.data_augment import uniform_noise
 
 pathToMatrices = '/home/ben/projects/comparison_leveller/data/matrices221_10000'
 phiTheta = np.load(pathToMatrices + '/phiTheta_10000.npy')
@@ -143,11 +143,13 @@ def validate(path_to_network_model, path_to_weights, directory, flat):
             rotatedImage = cv2.remap(orig, xMap, yMap, cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT)
 
         # This must be here or the performance drops?
-        img = uniform_noise(rotatedImage)
+        # img = uniform_noise(rotatedImage)
 
-        img = preprocess_input(img)
+        img = preprocess_input(rotatedImage)
         phi, theta, z = forward_spherical(model, img)
         data.append((give_gt_cart_reg(phi_gt, theta_gt), z))
+        if k == 100:
+            break
 
     show_model_performance_histogram(*zip(*data))
 
@@ -222,7 +224,7 @@ if __name__ == '__main__':
 
     # sun360
     path_to_network_model = '/home/ben/projects/comparison_leveller/data/training/regression/paper_model_sun360/model.json'
-    path_to_weights = '/home/ben/projects/comparison_leveller/data/training/regression/paper_model_sun360/Best/weights_360_4.43.h5'
+    path_to_weights = '/home/ben/projects/comparison_leveller/data/training/regression/paper_model_sun360/Best/weights_185_3.55.h5'
     directory = '/home/ben/datasets/sun360/levelled_images'
     validate(path_to_network_model, path_to_weights, directory, flat=False)
 
